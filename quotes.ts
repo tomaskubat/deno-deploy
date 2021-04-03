@@ -5,6 +5,7 @@ import {
 } from "https://deno.land/x/sift@0.1.7/mod.ts";
 
 serve({
+  "/": handleQuotes,
   "/quotes": handleQuotes,
 });
 
