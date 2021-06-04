@@ -1,3 +1,33 @@
+import {
+  json,
+  serve,
+  validateRequest,
+} from "https://deno.land/x/sift@0.1.7/mod.ts";
+
+serve({
+  "/": createResponse,
+});
+
+async function createResponse(request: Request): Promise<Response> {
+  return json({
+      name: "tomaskubat/php", 
+      tags: [
+        '8.0-dev-fmp-alpine',
+        '8.0-prod-fmp-alpine',
+      ]
+    });
+
+  // try {
+  //   const token = await createToken();
+  //   const tags = await getTags(token);
+  //   console.log(tags.tags);
+  //   return json(tags);
+  // } catch (error) {
+  //   console.error('Chyba, koncim: ' + error);
+  //   Deno.exit(1);
+  // }
+}
+
 type token = {
   access_token: string,
   expires_in: number
@@ -35,14 +65,4 @@ async function getTags(token: token): Promise<tags> {
 
   const tags: tags = await response.json();
   return tags;
-}
-
-try {
-  const token = await createToken();
-  const tags = await getTags(token);
-  console.log(tags.tags);
-
-} catch (error) {
-  console.error('Chyba, koncim: ' + error);
-  Deno.exit(1);
 }
