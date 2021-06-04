@@ -2,30 +2,53 @@ import {
   json,
   serve,
   validateRequest,
-} from "https://deno.land/x/sift@0.1.7/mod.ts";
+} from "https://deno.land/x/sift@0.3.2/mod.ts";
+
+// serve({
+//   "/": () => new Response("hello world"),
+//   "/blog/:slug": (request, { slug }) => {
+//     const post = `Hello, you visited ${slug}!`;
+//     return new Response(post);
+//   },
+//   404: () => new Response("not found")
+// });
 
 serve({
   "/": createResponse,
 });
 
-async function createResponse(request: Request): Promise<Response> {
-  return json({
-      name: "tomaskubat/php", 
-      tags: [
-        '8.0-dev-fmp-alpine',
-        '8.0-prod-fmp-alpine',
-      ]
-    });
+async function createResponse(request: Request, params: any): Promise<Response> {
+  console.log(request);
+  console.log(params);
+  console.log('---');
 
-  // try {
-  //   const token = await createToken();
-  //   const tags = await getTags(token);
-  //   console.log(tags.tags);
-  //   return json(tags);
-  // } catch (error) {
-  //   console.error('Chyba, koncim: ' + error);
-  //   Deno.exit(1);
-  // }
+  const { error, body } = await validateRequest(request, {
+    GET: {
+      params: []
+    }
+  });
+  // validateRequest populates the error if the request doesn't meet
+  // the schema we defined.
+  if (error) {
+    return json({ error: error.message }, { status: error.status });
+  }
+
+  // return json({
+  //   name: "tomaskubat/php",
+  //   tags: [
+  //     '8.0-dev-fmp-alpine',
+  //     '8.0-prod-fmp-alpine',
+  //   ]
+  // }, { status: 200 });
+
+  try {
+    const token = await createToken();
+    const tags = await getTags(token);
+    return json(tags, { status: 200 });
+  } catch (error) {
+    console.error('Chyba, koncim: ' + error);
+    return json({ error: String(error) }, { status: 500 });
+  }
 }
 
 type token = {
