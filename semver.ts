@@ -1,45 +1,45 @@
-import {
-  json,
-  serve,
-  validateRequest,
-} from "https://deno.land/x/sift@0.3.2/mod.ts";
+import { json, serve, validateRequest } from "https://deno.land/x/sift@0.3.2/mod.ts";
+
+const tags = [
+  "8.0.0-fpm-alpine",
+  "8.0.1-fpm-alpine",
+  "8.0.2-fpm-alpine",
+  "8.0.3-fpm-alpine",
+];
+const regexp = new RegExp("^8.0.(\\d+)-fpm-alpine$");
+
+console.log(tags);
+console.log(regexp);
+const filtered = tags.filter(tag => regexp.test(tag));
+console.log(filtered);
 
 // serve({
-//   "/": () => new Response("hello world"),
-//   "/blog/:slug": (request, { slug }) => {
-//     const post = `Hello, you visited ${slug}!`;
-//     return new Response(post);
-//   },
-//   404: () => new Response("not found")
+//   "/tag/:vendor/:image/list": serveTagList,
 // });
 
-serve({
-  "/": createResponse,
-});
-
-async function createResponse(request: Request, params: any): Promise<Response> {
-  console.log(request);
-  console.log(params);
-  console.log('---');
-
+async function serveTagList(request: Request, pathParams: any): Promise<Response> {
   const { error, body } = await validateRequest(request, {
     GET: {
       params: []
     }
   });
-  // validateRequest populates the error if the request doesn't meet
-  // the schema we defined.
+
+  const { vendor, image } = pathParams;
+  const filter = "^8.0.*-fpm-alpine$";
+
   if (error) {
     return json({ error: error.message }, { status: error.status });
   }
 
-  // return json({
-  //   name: "tomaskubat/php",
-  //   tags: [
-  //     '8.0-dev-fmp-alpine',
-  //     '8.0-prod-fmp-alpine',
-  //   ]
-  // }, { status: 200 });
+  const tagList = {
+    name: "tomaskubat/php",
+    tags: [
+      '8.0-dev-fmp-alpine',
+      '8.0-prod-fmp-alpine',
+    ]
+  };
+
+  return json(tagList, { status: 200 });
 
   try {
     const token = await createToken();
@@ -71,13 +71,6 @@ async function createToken(): Promise<token> {
 }
 
 async function getTags(token: token): Promise<tags> {
-  // return {
-  //   name: "tomaskubat/php", 
-  //   tags: [
-  //     '8.0-dev-fmp-alpine',
-  //     '8.0-prod-fmp-alpine',
-  //   ]
-  // }
   const response = await fetch("https://registry-1.docker.io/v2/tomaskubat/php/tags/list", {
     method: "GET",
     headers: {
