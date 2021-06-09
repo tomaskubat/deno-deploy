@@ -1,55 +1,71 @@
-import { json, serve, validateRequest } from "https://deno.land/x/sift@0.3.2/mod.ts";
+import { Application } from "https://deno.land/x/oak@v7.5.0/mod.ts";
 
-const tags = [
+const tags_library = [
   "8.0.0-fpm-alpine",
   "8.0.1-fpm-alpine",
   "8.0.2-fpm-alpine",
   "8.0.3-fpm-alpine",
+  "8.0.4-fpm-alpine",
+  "8.0.5-fpm-alpine",
+  "8.0.6-fpm-alpine",
+];
+const tags_own = [
+  "8.0.0-fpm-alpine",
+  "8.0.1-fpm-alpine",
+  "8.0.2-fpm-alpine",
 ];
 const regexp = new RegExp("^8.0.(\\d+)-fpm-alpine$");
+const filtered_library = tags_library.filter(tag => regexp.test(tag));
+const filtered_own = tags_own.filter(tag => regexp.test(tag));
+const distinction = filtered_library.filter(value => !filtered_own.includes(value));
 
-console.log(tags);
-console.log(regexp);
-const filtered = tags.filter(tag => regexp.test(tag));
-console.log(filtered);
+// ************************************************************************* //
 
-// serve({
-//   "/tag/:vendor/:image/list": serveTagList,
-// });
+const app = new Application();
 
-async function serveTagList(request: Request, pathParams: any): Promise<Response> {
-  const { error, body } = await validateRequest(request, {
-    GET: {
-      params: []
-    }
-  });
+app.addEventListener("listen", ({ hostname, port, secure }) => {
+  console.log(
+    `Listening on: ${secure ? "https://" : "http://"}${hostname ??
+      "localhost"}:${port}`,
+  );
+});
 
-  const { vendor, image } = pathParams;
-  const filter = "^8.0.*-fpm-alpine$";
+// Logger
+app.use(async (ctx, next) => {
+  console.log(`Logger - a`);
+  await next();
+  console.log(`Logger - b`);
+  const rt = ctx.response.headers.get("X-Response-Time");
+  console.log(`Logger - c: ${ctx.request.method} ${ctx.request.url} - ${rt}\n`);
+});
 
-  if (error) {
-    return json({ error: error.message }, { status: error.status });
-  }
+// Timing
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  console.log("Timing - a");
+  await next();
+  console.log("Timing - b");
+  const ms = Date.now() - start;
+  ctx.response.headers.set("X-Response-Time", `${ms}ms`);
+  console.log(`Timing`);
+});
 
-  const tagList = {
-    name: "tomaskubat/php",
-    tags: [
-      '8.0-dev-fmp-alpine',
-      '8.0-prod-fmp-alpine',
-    ]
-  };
+// Hello World!
+app.use(async (ctx, next) => {
+  console.log(`Response - a`);
+  await next();
+  console.log(`Response - b`);
+  ctx.response.body = distinction;
+  console.log(`Response -c`);
+});
 
-  return json(tagList, { status: 200 });
+// Deno Deploy
+addEventListener("fetch", app.fetchEventHandler());
 
-  try {
-    const token = await createToken();
-    const tags = await getTags(token);
-    return json(tags, { status: 200 });
-  } catch (error) {
-    console.error('Chyba, koncim: ' + error);
-    return json({ error: String(error) }, { status: 500 });
-  }
-}
+// Deno Cli
+//await app.listen({ port: 8000 });
+
+// ************************************************************************* //
 
 type token = {
   access_token: string,
