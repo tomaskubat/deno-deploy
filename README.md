@@ -1,5 +1,5 @@
 semver.tomask.space
-    /tag/<vendor>/<image>/list?filter=^8.0.*-fpm-alpine$
+    /tag/<vendor/image>/list?filter=^8.0.*-fpm-alpine$
     [
         8.0.0-fpm-alpine,
         8.0.1-fpm-alpine,
@@ -12,12 +12,12 @@ semver.tomask.space
         8.0.0-prod-fmp-alpine
     ]
 
-    /tag/<vendor>/<image>/missing?with_vendor=<vendor_with>&with_image=<image_with>&filter=^8.0.*-fpm-alpine$
+    /tag/<vendor/image>/missing?against=<vendor/repo>&filter=^8\.0\.(\d%2B)-fpm-alpine$
 
-- <vendor>/<image>
+- <vendor/image>
     - tomaskubat/php
     - library/php
-- https://semver.tomask.space/tags/tomaskubat/php-prod/missing?with_vendor=library&with_image=php&filter=^8.0.*-fpm-alpine$
+- https://semver.tomask.space/tags/tomaskubat/php-prod/missing?against=library/php&filter=^8\.0\.(\d%2B)-fpm-alpine$
 - nactu tagy tomaskubat/php-prod (metoda)
 - vyfiltruji (metoda jako endpoint)
 - nactu tagy library/php
