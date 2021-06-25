@@ -8,7 +8,6 @@ import {
   DockerHubWebhook,
 } from "./../types.ts"
 import { requestValidator } from "../middlewares/request-validator.middleware.ts";
-import { config } from "../config/config.ts";
 
 /** 
  * request body schema 
@@ -28,7 +27,7 @@ const proxy = [
   async (context: MiddlewareContext) => {
     const requestBody = await context.request.body().value as DockerHubWebhook;
 
-    const { SLACK_WEBHOOK_URL } = config;
+    const SLACK_WEBHOOK_URL = Deno.env.get('SLACK_WEBHOOK_URL') as string;
     console.log(SLACK_WEBHOOK_URL);
 
     const payloadMessage = {
