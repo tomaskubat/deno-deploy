@@ -29,6 +29,7 @@ const proxy = [
 
     const SLACK_WEBHOOK_URL = Deno.env.get('SLACK_WEBHOOK_URL') as string;
     console.log(SLACK_WEBHOOK_URL);
+    console.log(Deno.env.toObject());
 
     const payloadMessage = {
       text: `Builded new image *${requestBody.repository.repo_name}*`,
