@@ -17,7 +17,8 @@ semver.tomask.space
 - <vendor/image>
     - tomaskubat/php
     - library/php
-- https://semver.tomask.space/tags/tomaskubat/php-prod/missing?against=library/php&filter=^8\.0\.(\d%2B)-fpm-alpine$
+- https://tomask.space/tag/tomaskubat/php-prod/list?filter=^8\.0\.(\d%2B)-fpm-alpine$
+- https://tomask.space/tag/tomaskubat/php-prod/missing?against=library/php&filter=^8\.0\.(\d%2B)-fpm-alpine$
 - nactu tagy tomaskubat/php-prod (metoda)
 - vyfiltruji (metoda jako endpoint)
 - nactu tagy library/php
