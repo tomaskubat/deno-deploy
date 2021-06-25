@@ -1,8 +1,16 @@
 import { Application } from "https://deno.land/x/oak@v7.5.0/mod.ts";
 import { config } from "https://deno.land/x/dotenv@v2.0.0/mod.ts";
-import { existsSync } from "https://deno.land/std@0.99.0/fs/mod.ts";
 import { router } from "./router.ts"
 import { MiddlewareContext } from "./types.ts"
+
+const existsSync = (filePath: string): boolean => {
+  try {
+    Deno.lstatSync(filePath);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 if (existsSync('.env')) {
   console.log('.env existuje');
