@@ -87,4 +87,4 @@ const loop = async function(intervalSeconds: number): Promise<void> {
   }
 }
 
-await loop(60);
+await loop(10);
