@@ -1,16 +1,19 @@
 import { sprintf } from "https://deno.land/std@0.100.0/fmt/printf.ts";
 import { config } from "https://deno.land/x/dotenv@v2.0.0/mod.ts";
+import { Application, Context, Router } from "https://deno.land/x/oak@v7.5.0/mod.ts";
+import { 
+  fsExistsSync, 
+  sendSlackMessage 
+} from "https://raw.githubusercontent.com/sandbox-space/deno-helpers/main/mod.ts";
 
-try {
-  Deno.lstatSync('.env');
-  config({ export: true });
-} catch (err) { }
-
-const sleep = function(ms: number) {
-  return new Promise(resolve => setInterval(resolve, ms));
+if (fsExistsSync('.env.decathlon')) {
+  config({ 
+    export: true,
+    path: '.env.decathlon',
+  });
 }
 
-const checkProduct = async function(): Promise<void> {
+const checkProduct = async function(context: Context): Promise<void> {
   const url = 'https://www.decathlon.cz/cz/getAsyncProductData.json';
 
   const headers = new Headers();
@@ -38,11 +41,27 @@ const checkProduct = async function(): Promise<void> {
   try {
     const res = await fetch(url, requestOptions);
     const products: Array<Product> = await res.json();
-    
-    const onlineStockFound = products.map(product => product.onlineStock).find(onlineStock => onlineStock > 0);
-    const storeStockFound = products.map(product => product.storeStock).find(storeStock => storeStock !== null && storeStock > 0);
+
+    context.response.body = products.map(product => {
+      return {
+        brandName: product.brandName,
+        label: product.label,
+        onlineStock: product.onlineStock,
+        storeStock: product.storeStock,
+        storePrice: product.storePrice,
+      }
+    });
+
+    const productSizeL = products.filter(product => product.label == 'L');
+    const onlineStockFound = productSizeL.map(product => product.onlineStock).find(onlineStock => onlineStock > -1);
+    const storeStockFound = productSizeL.map(product => product.storeStock).find(storeStock => storeStock !== null && storeStock > 0);
     const isForSale = (onlineStockFound !== undefined || storeStockFound !== undefined);
     
+    if (!isForSale) {
+      return;
+    }
+
+    const mention = "<@tomas.kubat>";
     const formated = products.map((product) => {
       return sprintf(
         "%s %-5s %dks %dks %dCZK",
@@ -53,38 +72,29 @@ const checkProduct = async function(): Promise<void> {
         product.storePrice,
       );
     });
-
-    let mention = "";
-    if (isForSale) {
-      mention = "<@tomas.kubat>";
-    }
-
-    const slackMessage = {
-      text: `${mention}\`\`\`${formated.join("\n")}\`\`\``,
-      mrkdwn: true,
-    };
-    console.log(slackMessage);
-
+    const slackMessage = `${mention}\`\`\`${formated.join("\n")}\`\`\``;
     const SLACK_WEBHOOK_URL = Deno.env.get('SLACK_WEBHOOK_URL') as string;
     console.log(SLACK_WEBHOOK_URL);
-
-    fetch(SLACK_WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(slackMessage)
-    });
+    console.log(slackMessage);
+    sendSlackMessage(SLACK_WEBHOOK_URL, slackMessage);
   } catch(error) {
     console.error(error);
   }
 }
 
-const loop = async function(intervalSeconds: number): Promise<void> {
-  for (;;) {
-    checkProduct();
-    await sleep(intervalSeconds * 1000);
-  }
-}
+const router = new Router();
+router
+  .get("/decathlon-triban", checkProduct);
 
-await loop(1800);
+const app = new Application();
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+// Deno Deploy
+addEventListener("fetch", app.fetchEventHandler());
+
+// Deno Cli
+//await app.listen({ port: 8080 });
+
+// Infinite loop
+//await loop(5, checkProduct);
