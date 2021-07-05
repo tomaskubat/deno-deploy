@@ -1,10 +1,7 @@
 import { sprintf } from "https://deno.land/std@0.100.0/fmt/printf.ts";
 import { config } from "https://deno.land/x/dotenv@v2.0.0/mod.ts";
 import { Application, Context, Router } from "https://deno.land/x/oak@v7.5.0/mod.ts";
-import { 
-  fsExistsSync, 
-  sendSlackMessage 
-} from "https://raw.githubusercontent.com/sandbox-space/deno-helpers/main/mod.ts";
+import { fsExistsSync, sendSlackMessage } from "https://raw.githubusercontent.com/sandbox-space/deno-helpers/main/mod.ts";
 
 if (fsExistsSync('.env.decathlon')) {
   config({ 
