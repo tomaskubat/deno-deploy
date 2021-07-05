@@ -9,6 +9,6 @@ jobs:
   check_supplies:
     runs-on: ubuntu-latest
     steps:
-      - name: Download
+      - name: Fetch
         run: |
-          curl -s 'https://decathlon-triban.deno.dev/decathlon-triban'
+          curl -s 'https://decathlon-triban.deno.dev/decathlon-triban' | jq

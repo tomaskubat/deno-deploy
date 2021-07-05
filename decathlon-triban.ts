@@ -51,6 +51,7 @@ const checkProduct = async function(context: Context): Promise<void> {
         storePrice: product.storePrice,
       }
     });
+    console.log(context.response.body);
 
     const productSizeL = products.filter(product => product.label == 'L');
     const onlineStockFound = productSizeL.map(product => product.onlineStock).find(onlineStock => onlineStock > 0);
