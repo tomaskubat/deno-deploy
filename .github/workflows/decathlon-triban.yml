@@ -1,0 +1,14 @@
+name: Check Decathlon Triban supplies
+
+on: 
+  push:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  check_supplies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download
+        run: |
+          curl -s 'https://decathlon-triban.deno.dev/decathlon-triban'
