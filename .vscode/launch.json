@@ -5,10 +5,17 @@
         "name": "Deno",
         "type": "pwa-node",
         "request": "launch",
+        "outputCapture": "std",
         "cwd": "${workspaceFolder}",
         "runtimeExecutable": "deno",
-        "runtimeArgs": ["run", "--inspect-brk", "-A", "${file}"],
+        "runtimeArgs": ["run", "--no-check", "--inspect-brk", "-A", "main.ts"],
         "attachSimplePort": 9229
-      }
+      },
+      {
+        "name": "Deno (Attach)",
+        "type": "node",
+        "request": "attach",
+        "port": 9229
+  }
     ]
   }
